@@ -2,13 +2,7 @@
 
 > Generate a markdown TOC (table of contents) with marked.
 
-## Quick Start
-
-Assuming you want to add a TOC to README.md:
-
-1. `$ npm install -g markdown-toc`
-2. Edit README.md and insert the following line where you want the TOC inserted:<br />`<!-- toc -->`
-3. `$ markdown-toc -i README.md`
+This is a fork of https://github.com/jonschlinkert/markdown-toc.
 
 ## CLI
 
