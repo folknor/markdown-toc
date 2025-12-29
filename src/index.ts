@@ -62,7 +62,7 @@ class MarkedAdapter {
 
 	private processHeadingToken(token: Token, depth: number = 0): void {
 		// Skip headings beyond maxdepth
-		if (depth > (this.options.maxdepth || 6)) {
+		if (depth > this.options.maxdepth!) {
 			return;
 		}
 
@@ -217,8 +217,8 @@ class MarkedAdapter {
 		const indent = this.options.indent || "  ";
 
 		for (const heading of this.headings) {
-			// Skip headings beyond maxdepth (already filtered, but double-check)
-			if (heading.lvl > (this.options.maxdepth || 6)) {
+			// Skip headings beyond maxdepth
+			if (heading.lvl > this.options.maxdepth!) {
 				continue;
 			}
 
@@ -291,18 +291,9 @@ class MarkedAdapter {
 /**
  * Main parsing function using marked
  */
-function parseWithFallback(
-	content: string,
-	options: TOCOptions,
-): TOCResult {
-	try {
-		const adapter = new MarkedAdapter(options);
-		return adapter.parse(content);
-	} catch (error) {
-		console.warn("Marked parsing failed.:", error);
-		// Fallback to basic TOC generation or throw error
-		throw error;
-	}
+function parse(content: string, options: TOCOptions): TOCResult {
+	const adapter = new MarkedAdapter(options);
+	return adapter.parse(content);
 }
 
 /**
@@ -314,8 +305,7 @@ function parseWithFallback(
  * @returns Markdown-formatted table of contents
  */
 export default function toc(str: string, options: TOCOptions = {}): TOCResult {
-	// Use the marked implementation
-	return parseWithFallback(str, options);
+	return parse(str, options);
 }
 
 /**

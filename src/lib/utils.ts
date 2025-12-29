@@ -48,9 +48,6 @@ export interface TOCResult {
 }
 
 /**
- * Create utils object
- */
-/**
  * Custom list-item implementation
  * Creates a function that generates markdown list items with proper indentation
  */

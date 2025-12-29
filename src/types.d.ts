@@ -5,19 +5,6 @@ declare module "diacritics-map" {
 	export default diacritics;
 }
 
-declare module "remarkable" {
-	class Remarkable {
-		constructor(options?: unknown);
-		use(plugin: unknown): this;
-		render(content: string): unknown;
-		renderer: {
-			render: (tokens: unknown[]) => unknown;
-		};
-	}
-
-	export { Remarkable };
-}
-
 declare module "minimist" {
 	function minimist(args: string[], options?: unknown): unknown;
 	export = minimist;

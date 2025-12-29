@@ -9,7 +9,7 @@
 
 import fs from "node:fs";
 import toc from "./index.js";
-import utils, { type TOCOptions } from "./lib/utils.js";
+import utils, { type TOCResult } from "./lib/utils.js";
 
 interface CLIArgs {
 	_: string[];
@@ -31,11 +31,11 @@ const args = utils.minimist(process.argv.slice(2), {
 		firsth1: true,
 		stripHeadingTags: true,
 	},
-});
+}) as CLIArgs;
 
 async function main() {
 	// Validation checks
-	if ((args as CLIArgs)._.length !== 1) {
+	if (args._.length !== 1) {
 		console.error(
 			[
 				"Usage: markdown-toc [options] <input> ",
@@ -69,21 +69,21 @@ async function main() {
 		process.exit(1);
 	}
 
-	if ((args as CLIArgs).i && (args as CLIArgs).json) {
+	if (args.i && args.json) {
 		console.error("markdown-toc: you cannot use both --json and -i");
 		process.exit(1);
 	}
 
-	if ((args as CLIArgs).i && (args as CLIArgs)._[0] === "-") {
+	if (args.i && args._[0] === "-") {
 		console.error('markdown-toc: you cannot use -i with "-" (stdin) for input');
 		process.exit(1);
 	}
 
 	const input = process.stdin;
-	if ((args as CLIArgs)._[0] !== "-") {
+	if (args._[0] !== "-") {
 		try {
 			// Handle file input
-			const fileStream = fs.createReadStream((args as CLIArgs)._[0]);
+			const fileStream = fs.createReadStream(args._[0]);
 			const chunks: Buffer[] = [];
 
 			fileStream.on("data", (chunk: Buffer) => {
@@ -92,14 +92,12 @@ async function main() {
 
 			fileStream.on("end", () => {
 				const fileContent = Buffer.concat(chunks);
-				let newMarkdown: string;
-				let parsed: unknown;
 
-				if ((args as CLIArgs).i) {
-					newMarkdown = toc.insert(fileContent.toString(), args as TOCOptions);
-					fs.writeFileSync((args as CLIArgs)._[0], newMarkdown);
+				if (args.i) {
+					const newMarkdown = toc.insert(fileContent.toString(), args);
+					fs.writeFileSync(args._[0], newMarkdown);
 				} else {
-					parsed = toc(fileContent.toString(), args as TOCOptions);
+					const parsed = toc(fileContent.toString(), args);
 					output(parsed);
 				}
 			});
@@ -115,11 +113,11 @@ async function main() {
 		});
 
 		process.stdin.on("end", () => {
-			if ((args as CLIArgs).i) {
+			if (args.i) {
 				console.error("markdown-toc: cannot use -i with stdin input");
 				process.exit(1);
 			} else {
-				const parsed = toc(stdinData, args as TOCOptions);
+				const parsed = toc(stdinData, args);
 				output(parsed);
 			}
 		});
@@ -131,11 +129,11 @@ async function main() {
 	});
 }
 
-function output(parsed: unknown) {
-	if ((args as CLIArgs).json) {
-		console.log(JSON.stringify((parsed as { json: unknown }).json, null, "  "));
+function output(parsed: TOCResult) {
+	if (args.json) {
+		console.log(JSON.stringify(parsed.json, null, "  "));
 	} else {
-		process.stdout.write((parsed as { content: string }).content);
+		process.stdout.write(parsed.content);
 	}
 }
 
